@@ -1,0 +1,274 @@
+/* Custom styles for MovieCritic application */
+
+/* Base Styles */
+:root {
+    --transition-speed: 0.3s;
+    --transition-timing: ease-in-out;
+    --hover-lift: -5px;
+    --hover-scale: 1.03;
+    --primary-color: #dc3545;
+    --primary-hover: #c82333;
+    --secondary-color: #e83e8c;
+    --accent-color: #fd7e14;
+    --text-light: #f8f9fa;
+    --text-dark: #212529;
+    --star-color: #ffc107;
+}
+
+body {
+    background-color: #121212;
+    color: var(--text-light);
+}
+
+/* Animation utilities */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.scale-in {
+    animation: scaleIn 0.3s ease-in-out;
+}
+
+.slide-in-right {
+    animation: slideInRight 0.5s ease-in-out;
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.5s ease-in-out;
+}
+
+.bounce-in {
+    animation: bounceIn 0.5s ease-in-out;
+}
+
+/* Card styles */
+.movie-card {
+    transition: all var(--transition-speed) var(--transition-timing);
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+}
+
+.movie-card:hover {
+    transform: translateY(var(--hover-lift)) scale(var(--hover-scale));
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+.movie-card .card-img-top {
+    height: 300px;
+    object-fit: cover;
+    transition: all 0.5s ease;
+}
+
+.movie-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.movie-card .overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+    padding: 1rem;
+    color: white;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all var(--transition-speed) var(--transition-timing);
+}
+
+.movie-card:hover .overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Movie detail styles */
+.movie-backdrop {
+    position: relative;
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 2rem;
+}
+
+.movie-backdrop::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
+}
+
+.movie-poster {
+    transform: translateY(-80px);
+    margin-bottom: -80px;
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.movie-poster:hover {
+    transform: translateY(-85px) scale(1.02);
+}
+
+/* Star rating styles */
+.star-rating {
+    color: var(--star-color);
+    font-size: 1.2rem;
+}
+
+.star-rating .fas {
+    transition: all 0.2s ease;
+}
+
+.rating-selector .rating-star {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rating-selector .rating-star:hover {
+    transform: scale(1.2);
+}
+
+/* Review styles */
+.review-card {
+    border-left: 4px solid var(--primary-color);
+    transition: all var(--transition-speed) var(--transition-timing);
+    margin-bottom: 1.5rem;
+}
+
+.review-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Share URL box styles */
+.share-url-box {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px;
+    border-radius: 4px;
+    font-family: monospace;
+    margin: 15px 0;
+    word-break: break-all;
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 120px; /* Make room for the button */
+    color: var(--text-light);
+    transition: all 0.2s ease;
+}
+
+.share-url-box:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(102, 16, 242, 0.25);
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Button animations */
+.btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.btn:hover::after {
+    animation: ripple 1s ease-out;
+}
+
+/* Form elements */
+.form-control {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(102, 16, 242, 0.25);
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    20% {
+        transform: scale(25, 25);
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(40, 40);
+    }
+}
+
+/* Flash message animations */
+.flash-message {
+    animation: fadeInOut 5s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .movie-backdrop {
+        height: 300px;
+    }
+    
+    .movie-poster {
+        transform: translateY(-50px);
+        margin-bottom: -50px;
+    }
+    
+    .movie-poster:hover {
+        transform: translateY(-55px) scale(1.02);
+    }
+}

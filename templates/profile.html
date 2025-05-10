@@ -1,0 +1,183 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ user.username }}'s Profile - MovieCritic{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- User Profile Info -->
+    <div class="col-md-4 mb-4">
+        <div class="card border-0 shadow-lg animate__animated animate__fadeIn">
+            <div class="card-header bg-primary text-white py-3">
+                <h3 class="mb-0 text-center">Profile</h3>
+            </div>
+            <div class="card-body text-center py-4">
+                <img src="{{ user.profile_image }}" alt="{{ user.username }}" 
+                     class="rounded-circle mb-3 shadow-sm" width="150" height="150">
+                <h4 class="fw-bold">{{ user.username }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
+                
+                {% if user.bio %}
+                <div class="text-start mt-3 border-top pt-3">
+                    <p class="mb-0"><strong>Bio:</strong></p>
+                    <p>{{ user.bio }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="text-start mt-3 border-top pt-3">
+                    <p class="mb-1"><i class="fas fa-calendar-alt me-2 text-primary"></i> Joined {{ user.created_at.strftime('%B %Y') }}</p>
+                    <p class="mb-1"><i class="fas fa-pen-fancy me-2 text-primary"></i> {{ user_reviews|length }} Review{{ 's' if user_reviews|length != 1 else '' }}</p>
+                    <p class="mb-0"><i class="fas fa-bookmark me-2 text-primary"></i> {{ watchlist|length }} Movie{{ 's' if watchlist|length != 1 else '' }} in Watchlist</p>
+                </div>
+                
+                {% if user.id == current_user.id %}
+                <div class="mt-4">
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i> Edit Profile
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Content -->
+    <div class="col-md-8">
+        <ul class="nav nav-tabs mb-4 animate__animated animate__fadeIn" id="userTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" 
+                        type="button" role="tab" aria-controls="reviews" aria-selected="true">
+                    <i class="fas fa-star me-2"></i> Reviews
+                </button>
+            </li>
+            {% if user.id == current_user.id %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="watchlist-tab" data-bs-toggle="tab" data-bs-target="#watchlist" 
+                        type="button" role="tab" aria-controls="watchlist" aria-selected="false">
+                    <i class="fas fa-bookmark me-2"></i> Watchlist
+                </button>
+            </li>
+            {% endif %}
+        </ul>
+        
+        <div class="tab-content" id="userTabsContent">
+            <!-- Reviews Tab -->
+            <div class="tab-pane fade show active" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                {% if user_reviews %}
+                    <div class="list-group animate__animated animate__fadeIn">
+                        {% for review in user_reviews %}
+                            <div class="list-group-item list-group-item-action border-0 mb-3 shadow-sm animate__animated animate__fadeInUp"
+                                 style="animation-delay: {{ loop.index*0.1 }}s">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <h5 class="mb-1">
+                                        <a href="{{ url_for('movie_detail', movie_id=review.movie.id) }}" 
+                                           class="text-decoration-none">{{ review.movie.title }}</a>
+                                    </h5>
+                                    <div class="d-flex align-items-center">
+                                        <div class="text-warning me-2">
+                                            {% for i in range(1, 6) %}
+                                                {% if i <= (review.rating / 2)|round(0, 'common') %}
+                                                <i class="fas fa-star"></i>
+                                                {% elif i - 0.5 <= (review.rating / 2)|round(1) %}
+                                                <i class="fas fa-star-half-alt"></i>
+                                                {% else %}
+                                                <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <small class="text-muted">{{ review.rating }}/10</small>
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ review.created_at.strftime('%b %d, %Y') }}</small>
+                                <p class="mt-2 mb-1">{{ review.content|truncate(200) }}</p>
+                                <div class="d-flex mt-2">
+                                    <a href="{{ url_for('movie_detail', movie_id=review.movie.id) }}#review-{{ review.id }}" 
+                                       class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </a>
+                                    
+                                    {% if user.id == current_user.id %}
+                                    <a href="{{ url_for('edit_review', review_id=review.id) }}" 
+                                       class="btn btn-sm btn-outline-secondary me-2">
+                                        <i class="fas fa-edit me-1"></i> Edit
+                                    </a>
+                                    {% endif %}
+                                    
+                                    <a href="{{ url_for('share', review_id=review.id) }}" 
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-share-alt me-1"></i> Share
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 animate__animated animate__fadeIn">
+                        <i class="fas fa-comment-slash fa-4x text-muted mb-3"></i>
+                        <h3 class="h5 mb-3">No Reviews Yet</h3>
+                        <p class="text-muted mb-4">
+                            {% if user.id == current_user.id %}
+                                You haven't written any reviews yet.
+                            {% else %}
+                                {{ user.username }} hasn't written any reviews yet.
+                            {% endif %}
+                        </p>
+                        {% if user.id == current_user.id %}
+                        <a href="{{ url_for('browse') }}" class="btn btn-primary">
+                            <i class="fas fa-film me-2"></i> Browse Movies to Review
+                        </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Watchlist Tab (Only for current user) -->
+            {% if user.id == current_user.id %}
+            <div class="tab-pane fade" id="watchlist" role="tabpanel" aria-labelledby="watchlist-tab">
+                {% if watchlist %}
+                    <div class="row g-4 animate__animated animate__fadeIn">
+                        {% for item in watchlist %}
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="card h-100 movie-card border-0 shadow animate__animated animate__fadeInUp" 
+                                     style="animation-delay: {{ loop.index*0.1 }}s">
+                                    <div class="position-absolute top-0 end-0 p-2 z-1">
+                                        <form action="{{ url_for('remove_from_watchlist', movie_id=item.movie.id) }}" method="post" 
+                                              onsubmit="return confirm('Remove from watchlist?');">
+                                            <button type="submit" class="btn btn-sm btn-danger rounded-circle" title="Remove from watchlist">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <img src="{{ item.movie.poster_url }}" class="card-img-top" alt="{{ item.movie.title }}">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-truncate">{{ item.movie.title }}</h5>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">{{ item.movie.year }}</small>
+                                            <div class="text-warning small">
+                                                <i class="fas fa-star me-1"></i>{{ item.movie.avg_rating|round(1) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-transparent border-0">
+                                        <a href="{{ url_for('movie_detail', movie_id=item.movie.id) }}" 
+                                           class="btn btn-primary btn-sm w-100">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 animate__animated animate__fadeIn">
+                        <i class="fas fa-bookmark fa-4x text-muted mb-3"></i>
+                        <h3 class="h5 mb-3">Your Watchlist is Empty</h3>
+                        <p class="text-muted mb-4">Add movies to your watchlist to keep track of what you want to watch.</p>
+                        <a href="{{ url_for('browse') }}" class="btn btn-primary">
+                            <i class="fas fa-film me-2"></i> Browse Movies
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

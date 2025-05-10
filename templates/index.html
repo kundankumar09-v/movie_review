@@ -1,0 +1,191 @@
+{% extends "layout.html" %}
+
+{% block title %}MovieCritic - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Featured Movies -->
+<section class="mb-5">
+    <!-- Dark Header Banner -->
+    <div class="bg-dark py-5 mb-5 text-center" style="margin-top: -1.5rem; margin-left: -1.5rem; margin-right: -1.5rem; background-color: #0e0e0e !important;">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3 text-white animate__animated animate__fadeIn">Welcome to MovieCritic</h1>
+            <p class="lead mb-4 text-white-50 animate__animated animate__fadeIn">Discover, review, and share your thoughts on thousands of movies!</p>
+            
+            {% if not current_user.is_authenticated %}
+            <div class="d-flex justify-content-center gap-3 mb-3 animate__animated animate__fadeIn animate__delay-1s">
+                <a href="{{ url_for('register') }}" class="btn btn-danger btn-lg">
+                    <i class="fas fa-user-plus me-2"></i> Sign Up
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i> Login
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Stats and Featured Movie -->
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Stats cards - More Visible -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light animate__animated animate__fadeInUp animate__delay-1s" style="background-color: #ffcccb !important; border-radius: 10px;">
+                        <div class="card-body text-center p-4">
+                            <div class="d-flex justify-content-center align-items-center mb-2">
+                                <i class="fas fa-film text-danger me-2" style="font-size: 1.8rem;"></i>
+                                <h5 class="card-title fs-4 mb-0 text-dark">Movies</h5>
+                            </div>
+                            <p class="display-2 fw-bold mb-0 text-danger">{{ total_movies }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light animate__animated animate__fadeInUp animate__delay-2s" style="background-color: #d4f8d4 !important; border-radius: 10px;">
+                        <div class="card-body text-center p-4">
+                            <div class="d-flex justify-content-center align-items-center mb-2">
+                                <i class="fas fa-star text-success me-2" style="font-size: 1.8rem;"></i>
+                                <h5 class="card-title fs-4 mb-0 text-dark">Reviews</h5>
+                            </div>
+                            <p class="display-2 fw-bold mb-0 text-success">{{ total_reviews }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light animate__animated animate__fadeInUp animate__delay-3s" style="background-color: #e5e5e5 !important; border-radius: 10px;">
+                        <div class="card-body text-center p-4">
+                            <div class="d-flex justify-content-center align-items-center mb-2">
+                                <i class="fas fa-users text-secondary me-2" style="font-size: 1.8rem;"></i>
+                                <h5 class="card-title fs-4 mb-0 text-dark">Users</h5>
+                            </div>
+                            <p class="display-2 fw-bold mb-0 text-secondary">{{ total_users }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Featured movie poster -->
+        <div class="col-lg-4 mb-4 d-flex justify-content-center align-items-center">
+            {% if featured_movies %}
+            <div class="position-relative animate__animated animate__zoomIn">
+                <img src="{{ featured_movies[0].poster_url }}" alt="{{ featured_movies[0].title }}" 
+                     class="img-fluid rounded shadow-lg movie-poster" style="max-height: 450px; border: 4px solid #dc3545;">
+                <div class="position-absolute top-0 end-0 bg-danger text-white px-3 py-2 rounded-pill m-2">
+                    <i class="fas fa-star me-1"></i> {{ featured_movies[0].avg_rating|round(1) }}/10
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center animate__animated animate__fadeIn">
+                <i class="fas fa-film fa-5x mb-3 text-secondary"></i>
+                <p>No featured movies yet</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Popular Movies Section -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title h3 mb-0 animate__animated animate__fadeIn">
+            <i class="fas fa-fire-alt me-2 text-danger"></i> Popular Movies
+        </h2>
+        <a href="{{ url_for('browse') }}" class="btn btn-outline-danger btn-sm animate__animated animate__fadeIn">
+            View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+    
+    <div class="row g-4">
+        {% if featured_movies %}
+            {% for movie in featured_movies %}
+                <div class="col-6 col-md-3">
+                    <div class="card h-100 movie-card border-0 shadow animate__animated animate__fadeInUp" 
+                         style="animation-delay: {{ loop.index*0.1 }}s">
+                        <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}">
+                        <div class="overlay">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-1">{{ movie.year }}</h6>
+                                <div class="text-warning">
+                                    <i class="fas fa-star me-1"></i>{{ movie.avg_rating|round(1) }}
+                                </div>
+                            </div>
+                            <p class="small text-truncate">{{ movie.genre }}</p>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate">{{ movie.title }}</h5>
+                            <p class="card-text small text-muted text-truncate">{{ movie.director }}</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" 
+                               class="btn btn-danger btn-sm w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No movies available. <a href="#" onclick="initSampleData()" class="alert-link">Add sample data</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recently Added Movies -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title h3 mb-0 animate__animated animate__fadeIn">
+            <i class="fas fa-clock me-2 text-danger"></i> Recently Added
+        </h2>
+        <a href="{{ url_for('browse') }}" class="btn btn-outline-danger btn-sm animate__animated animate__fadeIn">
+            View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+    
+    <div class="row g-4">
+        {% if recent_movies %}
+            {% for movie in recent_movies[:4] %}
+                <div class="col-6 col-md-3">
+                    <div class="card h-100 movie-card border-0 shadow animate__animated animate__fadeInUp" 
+                         style="animation-delay: {{ loop.index*0.1 }}s">
+                        <img src="{{ movie.poster_url }}" class="card-img-top" alt="{{ movie.title }}">
+                        <div class="overlay">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-1">{{ movie.year }}</h6>
+                                <div class="text-warning">
+                                    <i class="fas fa-star me-1"></i>{{ movie.avg_rating|round(1) }}
+                                </div>
+                            </div>
+                            <p class="small text-truncate">{{ movie.genre }}</p>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate">{{ movie.title }}</h5>
+                            <p class="card-text small text-muted text-truncate">{{ movie.director }}</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" 
+                               class="btn btn-danger btn-sm w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No recent movies available. <a href="#" onclick="initSampleData()" class="alert-link">Add sample data</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize any components that need JS
+    });
+</script>
+{% endblock %}

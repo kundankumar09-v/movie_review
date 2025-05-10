@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block title %}Share Review - MovieCritic{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0 rounded-lg animate__animated animate__fadeIn">
+            <div class="card-header bg-primary text-white">
+                <h3 class="text-center font-weight-light my-2">Share this Review</h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <img src="{{ review.movie.poster_url }}" alt="{{ review.movie.title }}" class="img-fluid rounded shadow">
+                    </div>
+                    <div class="col-md-9">
+                        <h4 class="mb-2">{{ review.movie.title }} ({{ review.movie.year }})</h4>
+                        <p class="text-muted mb-1">
+                            Review by <strong>{{ review.author }}</strong> on 
+                            {{ review.created_at.strftime('%b %d, %Y') }}
+                        </p>
+                        <div class="d-flex align-items-center">
+                            <div class="star-rating me-2">
+                                {% for i in range(1, 11) %}
+                                    {% if i <= review.rating %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="text-primary fw-bold">{{ review.rating }}/10</span>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <p class="mb-0">{{ review.content|truncate(150) }}</p>
+                            <a href="{{ url_for('movie_detail', movie_id=review.movie.id) }}#review-{{ review.id }}" 
+                               class="text-decoration-none">Read full review</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Share URL</label>
+                    <div class="input-group">
+                        <input type="text" id="shareUrl" class="form-control share-url-box" readonly 
+                               value="{{ request.host_url }}{{ url_for('movie_detail', movie_id=review.movie.id) }}#review-{{ review.id }}">
+                        <button class="btn btn-primary" id="copyBtn" type="button">
+                            <i class="fas fa-copy me-1"></i> Copy
+                        </button>
+                    </div>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        Since we're using HTTP, we'll use a different way to help you copy the link 
+                        (the clipboard API requires HTTPS).
+                    </small>
+                </div>
+                
+                <div id="manual-copy-instructions" class="alert alert-info animate__animated animate__fadeIn">
+                    <h5><i class="fas fa-lightbulb me-2"></i>How to Copy</h5>
+                    <ol class="mb-0">
+                        <li>Triple-click the URL above to select it completely</li>
+                        <li>Use keyboard shortcut Ctrl+C (or Cmd+C on Mac) to copy</li>
+                        <li>Paste it where you want to share (Ctrl+V or Cmd+V)</li>
+                    </ol>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('movie_detail', movie_id=review.movie.id) }}#review-{{ review.id }}" 
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Review
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-primary me-2 disabled">
+                                <i class="fab fa-twitter me-1"></i> Tweet
+                            </button>
+                            <button type="button" class="btn btn-primary disabled">
+                                <i class="fab fa-facebook me-1"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-lock me-1"></i> 
+                            Social share buttons require HTTPS to function properly
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const shareUrl = document.getElementById('shareUrl');
+        const copyBtn = document.getElementById('copyBtn');
+        
+        copyBtn.addEventListener('click', function() {
+            // Select the text field
+            shareUrl.select();
+            shareUrl.setSelectionRange(0, 99999); // For mobile devices
+            
+            // Show a message that they need to copy manually (since navigator.clipboard requires HTTPS)
+            this.innerHTML = '<i class="fas fa-check me-1"></i> Select All';
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-copy me-1"></i> Copy';
+            }, 2000);
+        });
+    });
+</script>
+{% endblock %}

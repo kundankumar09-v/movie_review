@@ -1,0 +1,171 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ 'Edit' if edit else 'Add' }} Review - {{ movie.title }} - MovieCritic{% endblock %}
+
+{% block extra_head %}
+<style>
+    .rating-selector {
+        font-size: 1.5rem;
+    }
+    .rating-selector .rating-star {
+        cursor: pointer;
+        color: #6c757d;
+        margin-right: 0.1rem;
+    }
+    .rating-selector .rating-star.active {
+        color: #ffc107;
+    }
+    .rating-selector .rating-text {
+        font-size: 1rem;
+        margin-left: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-lg border-0 rounded-lg animate__animated animate__fadeIn">
+            <div class="card-header bg-primary text-white">
+                <h3 class="text-center my-2">{{ 'Edit' if edit else 'Write a' }} Review for "{{ movie.title }}"</h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-2">
+                        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="img-fluid rounded shadow">
+                    </div>
+                    <div class="col-md-10">
+                        <h4 class="mb-2">{{ movie.title }} ({{ movie.year }})</h4>
+                        <p class="text-muted">{{ movie.director }} | {{ movie.genre }}</p>
+                        <p>{{ movie.description|truncate(200) }}</p>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ url_for('edit_review', review_id=review.id) if edit else url_for('add_review', movie_id=movie.id) }}">
+                    {{ form.hidden_tag() }}
+                    {{ form.movie_id() }}
+                    
+                    <div class="mb-4">
+                        <label class="mb-2 fw-bold">Your Rating</label>
+                        <div class="rating-selector" id="ratingSelector">
+                            {% for i in range(1, 11) %}
+                                <i class="rating-star {{ 'active' if (edit and form.rating.data and i <= form.rating.data) else '' }} 
+                                    fas {{ 'fa-star' if (edit and form.rating.data and i <= form.rating.data) else 'fa-star-o' }}" 
+                                   data-rating="{{ i }}"></i>
+                            {% endfor %}
+                            <span class="rating-text">{{ form.rating.data if edit and form.rating.data else 'Select a rating' }}</span>
+                            {{ form.rating(type="hidden", id="rating") }}
+                            {% if form.rating.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.rating.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="content" class="form-label fw-bold">Your Review</label>
+                        {{ form.content(class="form-control", rows=8, style="resize: vertical;") }}
+                        {% if form.content.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.content.errors %}
+                            <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Minimum 10 characters, maximum 2000 characters.
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('movie_detail', movie_id=movie.id) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Movie
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-{{ 'edit' if edit else 'paper-plane' }} me-2"></i> 
+                            {{ 'Update' if edit else 'Post' }} Review
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Rating selector functionality
+        const stars = document.querySelectorAll('.rating-star');
+        const ratingText = document.querySelector('.rating-text');
+        const ratingInput = document.getElementById('rating');
+        
+        stars.forEach(star => {
+            star.addEventListener('mouseover', function() {
+                const rating = parseInt(this.dataset.rating);
+                resetStars();
+                
+                // Highlight stars up to the hovered one
+                stars.forEach(s => {
+                    if (parseInt(s.dataset.rating) <= rating) {
+                        s.classList.add('active');
+                        s.classList.remove('fa-star-o');
+                        s.classList.add('fa-star');
+                    }
+                });
+                
+                ratingText.textContent = `${rating}/10`;
+            });
+            
+            star.addEventListener('mouseout', function() {
+                const currentRating = parseInt(ratingInput.value || 0);
+                resetStars();
+                
+                // Restore current rating display
+                if (currentRating > 0) {
+                    stars.forEach(s => {
+                        if (parseInt(s.dataset.rating) <= currentRating) {
+                            s.classList.add('active');
+                            s.classList.remove('fa-star-o');
+                            s.classList.add('fa-star');
+                        }
+                    });
+                    ratingText.textContent = `${currentRating}/10`;
+                } else {
+                    ratingText.textContent = 'Select a rating';
+                }
+            });
+            
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.dataset.rating);
+                ratingInput.value = rating;
+                
+                resetStars();
+                
+                // Set the selected rating
+                stars.forEach(s => {
+                    if (parseInt(s.dataset.rating) <= rating) {
+                        s.classList.add('active');
+                        s.classList.remove('fa-star-o');
+                        s.classList.add('fa-star');
+                    }
+                });
+                
+                ratingText.textContent = `${rating}/10`;
+            });
+        });
+        
+        function resetStars() {
+            stars.forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('fa-star');
+                s.classList.add('fa-star-o');
+            });
+        }
+    });
+</script>
+{% endblock %}
